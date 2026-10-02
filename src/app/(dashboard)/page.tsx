@@ -94,13 +94,13 @@ export default async function HomePage() {
           value={formatRupiah(
             monthTotals.kebab.netto + monthTotals.lumpia.netto
           )}
-          icon={TrendingUp}
+          icon={<TrendingUp className="size-4 text-muted-foreground" />}
           tone="positive"
         />
         <StatCard
           label="COGS bulan ini"
           value={formatRupiah(monthTotals.kebab.cogs + monthTotals.lumpia.cogs)}
-          icon={Wallet}
+          icon={<Wallet className="size-4 text-muted-foreground" />}
         />
       </div>
 

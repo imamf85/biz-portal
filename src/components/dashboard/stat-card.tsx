@@ -7,19 +7,19 @@ import {
 } from "@/components/ui/popover";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 export function StatCard({
   label,
   value,
   sub,
-  icon: Icon,
+  icon,
   tone = "default",
 }: {
   label: string;
   value: string;
   sub?: string;
-  icon?: LucideIcon;
+  icon?: ReactNode;
   tone?: "default" | "positive" | "negative";
 }) {
   return (
@@ -44,11 +44,7 @@ export function StatCard({
               </p>
               {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
             </div>
-            {Icon && (
-              <div className="rounded-lg bg-muted p-2">
-                <Icon className="size-4 text-muted-foreground" />
-              </div>
-            )}
+            {icon && <div className="rounded-lg bg-muted p-2">{icon}</div>}
           </CardContent>
         </Card>
       </PopoverTrigger>
