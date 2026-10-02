@@ -8,9 +8,9 @@ import {
 } from "@/lib/active-range";
 import {
   getSharedIngredientNames,
-  computeLumpiaCrossCharge,
+  getLumpiaCrossChargeBreakdown,
 } from "@/lib/cross-charge";
-import { formatRupiah, formatDateId } from "@/lib/format";
+import { formatRupiah, formatNumber, formatDateId } from "@/lib/format";
 import { DateRangeControl } from "@/components/dashboard/date-range-control";
 import { cn } from "@/lib/utils";
 import {
@@ -71,7 +71,8 @@ export default async function ExpensesPage({
     .reduce((sum, e) => sum + e.amount, 0);
 
   const sharedNames = getSharedIngredientNames(ingredients);
-  const crossCharge = computeLumpiaCrossCharge(summaryRows, sharedNames);
+  const crossChargeBreakdown = getLumpiaCrossChargeBreakdown(summaryRows, sharedNames);
+  const crossCharge = crossChargeBreakdown.reduce((sum, e) => sum + e.subtotal, 0);
   const allocatedKebabTotal = rawKebabTotal - crossCharge;
   const allocatedLumpiaTotal = rawLumpiaTotal + crossCharge;
 
@@ -160,27 +161,54 @@ export default async function ExpensesPage({
       <Card className="border-sky-300/60 bg-sky-50/60 dark:border-sky-900/50 dark:bg-sky-950/20">
         <CardContent className="flex gap-3 p-4">
           <ArrowRightLeft className="size-4 shrink-0 text-sky-600 dark:text-sky-400" />
-          <p className="text-xs text-muted-foreground">
-            <strong className="text-foreground">
-              {formatRupiah(crossCharge)}
-            </strong>{" "}
-            dipindahkan dari kebab ke lumpia pada periode ini — nilai ini
-            dihitung dari pemakaian aktual bahan bersama (bahan yang ditandai
-            &ldquo;Shared&rdquo; di halaman{" "}
-            <Link href="/ingredients" className="underline underline-offset-2">
-              Bahan Baku
-            </Link>
-            ) di cabang Cibubur, dikalikan harga satuannya. Kebab yang
-            membayar, lumpia yang mengonsumsi, jadi biayanya dialokasikan ke
-            lumpia. Total gabungan kebab + lumpia tidak berubah, hanya
-            dipindahkan.{" "}
-            {crossCharge === 0 && (
-              <span>
-                Kalau angka ini 0 padahal seharusnya ada, cek apakah kolom
-                shared sudah diisi di tabel ingredients.
-              </span>
+          <div className="min-w-0 flex-1 space-y-3">
+            <p className="text-xs text-muted-foreground">
+              <strong className="text-foreground">
+                {formatRupiah(crossCharge)}
+              </strong>{" "}
+              dipindahkan dari kebab ke lumpia pada periode ini — nilai ini
+              dihitung dari pemakaian aktual bahan bersama (bahan yang ditandai
+              &ldquo;Shared&rdquo; di halaman{" "}
+              <Link href="/ingredients" className="underline underline-offset-2">
+                Bahan Baku
+              </Link>
+              ) di cabang Cibubur, dikalikan harga satuannya. Kebab yang
+              membayar, lumpia yang mengonsumsi, jadi biayanya dialokasikan ke
+              lumpia. Total gabungan kebab + lumpia tidak berubah, hanya
+              dipindahkan.{" "}
+              {crossCharge === 0 && (
+                <span>
+                  Kalau angka ini 0 padahal seharusnya ada, cek apakah kolom
+                  shared sudah diisi di tabel ingredients.
+                </span>
+              )}
+            </p>
+
+            {crossChargeBreakdown.length > 0 && (
+              <div className="space-y-1 rounded-md border border-sky-300/50 bg-background/60 p-2 dark:border-sky-900/40">
+                {crossChargeBreakdown.map((entry) => (
+                  <div
+                    key={entry.name}
+                    className="flex items-center justify-between gap-2 text-xs"
+                  >
+                    <span className="truncate text-foreground">
+                      {entry.name}{" "}
+                      <span className="text-muted-foreground">
+                        ({formatNumber(entry.qty, 2)} {entry.satuan})
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-medium tabular-nums">
+                      {formatRupiah(entry.subtotal)}
+                    </span>
+                  </div>
+                ))}
+                <div className="flex items-center justify-between gap-2 border-t border-sky-300/50 pt-1 text-xs font-semibold dark:border-sky-900/40">
+                  <span>Total</span>
+                  <span className="tabular-nums">{formatRupiah(crossCharge)}</span>
+                </div>
+              </div>
             )}
-          </p>
+          </div>
         </CardContent>
       </Card>
 

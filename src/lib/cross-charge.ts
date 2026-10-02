@@ -14,20 +14,45 @@ export function getSharedIngredientNames(ingredients: Ingredient[]): Set<string>
   );
 }
 
+export interface CrossChargeBreakdownEntry {
+  name: string;
+  qty: number;
+  satuan: string;
+  subtotal: number;
+}
+
+export function getLumpiaCrossChargeBreakdown(
+  summaryRows: SummaryResult[],
+  sharedNames: Set<string>
+): CrossChargeBreakdownEntry[] {
+  if (sharedNames.size === 0) return [];
+
+  const map = new Map<string, CrossChargeBreakdownEntry>();
+  for (const row of summaryRows) {
+    if (row.branch !== "cibubur" || !row.cogs_breakdown) continue;
+    for (const [name, entry] of Object.entries(row.cogs_breakdown)) {
+      if (!sharedNames.has(name)) continue;
+      const qty = Number(entry.qty) || 0;
+      const subtotal = Number(entry.subtotal) || 0;
+      const existing = map.get(name);
+      if (existing) {
+        existing.qty += qty;
+        existing.subtotal += subtotal;
+      } else {
+        map.set(name, { name, qty, satuan: entry.satuan, subtotal });
+      }
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) => b.subtotal - a.subtotal);
+}
+
 export function computeLumpiaCrossCharge(
   summaryRows: SummaryResult[],
   sharedNames: Set<string>
 ): number {
-  if (sharedNames.size === 0) return 0;
-
-  let total = 0;
-  for (const row of summaryRows) {
-    if (row.branch !== "cibubur" || !row.cogs_breakdown) continue;
-    for (const [name, entry] of Object.entries(row.cogs_breakdown)) {
-      if (sharedNames.has(name)) {
-        total += Number(entry.subtotal) || 0;
-      }
-    }
-  }
-  return total;
+  return getLumpiaCrossChargeBreakdown(summaryRows, sharedNames).reduce(
+    (sum, entry) => sum + entry.subtotal,
+    0
+  );
 }
