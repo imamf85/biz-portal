@@ -3,9 +3,11 @@
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatRupiah, formatDateId } from "@/lib/format";
-import { Search } from "lucide-react";
+import { Search, Plus, Pencil } from "lucide-react";
+import { IngredientFormDialog } from "@/components/dashboard/ingredient-form-dialog";
 import type { Ingredient } from "@/types";
 
 export function IngredientsList({ ingredients }: { ingredients: Ingredient[] }) {
@@ -33,13 +35,23 @@ export function IngredientsList({ ingredients }: { ingredients: Ingredient[] }) 
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Cari bahan..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-9"
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Cari bahan..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <IngredientFormDialog
+          trigger={
+            <Button size="sm" className="shrink-0 gap-1.5">
+              <Plus className="size-4" />
+              Tambah
+            </Button>
+          }
         />
       </div>
 
@@ -85,6 +97,18 @@ export function IngredientsList({ ingredients }: { ingredients: Ingredient[] }) 
                     <p className="text-sm font-semibold tabular-nums">
                       {formatRupiah(item.harga_per_satuan)}
                     </p>
+                    <IngredientFormDialog
+                      ingredient={item}
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={`Edit ${item.nama_bahan}`}
+                        >
+                          <Pencil className="size-3.5" />
+                        </Button>
+                      }
+                    />
                   </div>
                 </div>
               ))}
