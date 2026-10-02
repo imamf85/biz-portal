@@ -22,6 +22,23 @@ function parseAmount(raw: string | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+// Google Sheets returns date cells as locale-formatted strings (e.g. "10/2/2026"
+// M/D/YYYY) rather than ISO, but downstream range filters compare expenseDate
+// as a plain ISO string. Normalize here so both sheets sort/filter correctly.
+function parseExpenseDate(raw: string | undefined): string {
+  if (!raw) return "";
+  const isoMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
+
+  const usMatch = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (usMatch) {
+    const [, month, day, year] = usMatch;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+
+  return raw;
+}
+
 function parseSheetRows(rows: string[][], business: Business): ExpenseRow[] {
   const [, ...dataRows] = rows; // skip header row
   return dataRows
@@ -29,7 +46,7 @@ function parseSheetRows(rows: string[][], business: Business): ExpenseRow[] {
     .map((r) => ({
       timestamp: r[HEADER_INDEX.timestamp] ?? "",
       amount: parseAmount(r[HEADER_INDEX.amount]),
-      expenseDate: r[HEADER_INDEX.expenseDate] ?? "",
+      expenseDate: parseExpenseDate(r[HEADER_INDEX.expenseDate]),
       toko: r[HEADER_INDEX.toko] ?? "",
       category: r[HEADER_INDEX.category] ?? "Lainnya",
       description: r[HEADER_INDEX.description] ?? "",
