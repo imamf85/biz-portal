@@ -1,5 +1,5 @@
 import { logout } from "@/app/actions/auth";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { LogOut } from "lucide-react";
 
 export function TopBar() {
@@ -10,9 +10,9 @@ export function TopBar() {
         <p className="text-[11px] text-muted-foreground">Kebab & Lumpia</p>
       </div>
       <form action={logout}>
-        <Button variant="ghost" size="icon" className="size-8">
+        <SubmitButton variant="ghost" size="icon" className="size-8">
           <LogOut className="size-4" />
-        </Button>
+        </SubmitButton>
       </form>
     </header>
   );

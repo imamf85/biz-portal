@@ -1,5 +1,5 @@
 import { login } from "@/app/actions/auth";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -37,9 +37,9 @@ export default async function LoginPage({
             {error && (
               <p className="text-sm text-destructive">{decodeURIComponent(error)}</p>
             )}
-            <Button type="submit" className="w-full">
+            <SubmitButton className="w-full gap-2" pendingText="Masuk...">
               Masuk
-            </Button>
+            </SubmitButton>
           </form>
         </CardContent>
       </Card>

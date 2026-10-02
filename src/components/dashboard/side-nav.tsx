@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "./nav-items";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions/auth";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { LogOut } from "lucide-react";
 
 export function SideNav() {
@@ -43,10 +43,15 @@ export function SideNav() {
         </ul>
       </nav>
       <form action={logout} className="p-3">
-        <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+        <SubmitButton
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2"
+          pendingText="Keluar..."
+        >
           <LogOut className="size-4" />
           Keluar
-        </Button>
+        </SubmitButton>
       </form>
     </aside>
   );
